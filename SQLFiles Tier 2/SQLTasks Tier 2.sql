@@ -112,6 +112,7 @@ ON m.memid = b.memid
 INNER JOIN Facilities f
 ON b.facid =f.facid
 WHERE (f.guestcost > 30 OR f.membercost > 30 )
+AND DATE(b.starttime) =DATE('2012-09-14')
 ORDER BY Cost DESC;
 
 
@@ -141,6 +142,7 @@ INNER JOIN
     ) f ON b.facid = f.facid
 WHERE
     (f.guestcost > 30 OR f.membercost > 30)
+    AND DATE(b.starttime) =DATE('2012-09-14')
 ORDER BY
     Cost DESC;
 
@@ -159,17 +161,17 @@ The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
 
 SELECT f.name, SUM(
-        CASE WHEN b.memid = 0 THEN f.guestcost 
-        WHEN b.memid != 0 THEN f.membercost
-        END) AS Revenue
+        CASE WHEN b.memid = 0 THEN f.guestcost * b.slots
+        WHEN b.memid != 0 THEN f.membercost * b.slots
+        END) * b.slots AS Revenue
         FROM Bookings b LEFT JOIN 
         Facilities f
         ON  b.facid = f.facid
         GROUP BY f.name
         HAVING SUM(
-        CASE WHEN b.memid = 0 THEN f.guestcost 
-        WHEN b.memid != 0 THEN f.membercost
-        END) > 1000
+        CASE WHEN b.memid = 0 THEN f.guestcost * b.slots
+        WHEN b.memid != 0 THEN f.membercost * b.slots
+        END)  > 1000
         ORDER BY Revenue DESC
 
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
